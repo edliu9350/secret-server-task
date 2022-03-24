@@ -1,0 +1,7 @@
+{
+	"id": ObjectID,
+	"url": string,
+	"createdAt": date,
+	"expiresAt": date,
+	"lifeCount": number
+}
