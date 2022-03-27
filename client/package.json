@@ -27,6 +27,7 @@
     "react-scripts": "5.0.0",
     "redux": "^4.1.2",
     "tailwindcss": "^3.0.23",
+    "use-interval": "^1.4.0",
     "web-vitals": "^2.1.4",
     "zustand": "^3.7.1"
   },

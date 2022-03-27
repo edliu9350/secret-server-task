@@ -79,7 +79,7 @@ export const getTimeString = (tsec) => {
     let timeInSec = tsec / 1000;
     let result = "";
      if(timeInSec < 60)
-        result = Math.floor(timeInSec) + " s";
+        result = Math.floor(timeInSec) + "s";
     else if(timeInSec < 3600)
         result = Math.floor(timeInSec / 60) + " min(s)";
     else if(timeInSec < 3600 * 24)
