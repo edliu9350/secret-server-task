@@ -36,15 +36,14 @@ export default ({ open, handleClose }) => {
         } else {
             setValidationMsg('');
         }
+        handleClose();
         axios.post('/api/secret', {
             secret: secretText,
             expireAfter
         }).then((res) => {
-            handleClose();
             let newSecs = [...secrets, res.data.secret];
             setSecrets(newSecs);
         }).catch(err => {
-            handleClose();
             alert('Error occured');
         })
     }

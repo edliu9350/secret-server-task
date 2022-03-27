@@ -88,8 +88,24 @@ const getSecrets = (req, res) => {
 		})
 }
 
+const deleteSecrets = (req, res) => {
+	Secret.remove({})
+		.then(() => {
+			res.json({
+				message: 'All secrets deleted'
+			});
+		})
+		.catch(err => {
+			res.status(500).send({
+				message: 'Error deleting data',
+				error: err
+			})
+		})
+}
+
 module.exports = {
 	getSecretByHash,
 	addSecret,
-	getSecrets
+	getSecrets,
+	deleteSecrets
 };
