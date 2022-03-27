@@ -74,3 +74,17 @@ export const truncate = (text, limit) => {
     // trim trailing whitespace/periods
     return text.replace(/[\s.]+$/g, '');
 };
+
+export const getTimeString = (tsec) => {
+    let timeInSec = tsec / 1000;
+    let result = "";
+     if(timeInSec < 60)
+        result = Math.floor(timeInSec) + " s";
+    else if(timeInSec < 3600)
+        result = Math.floor(timeInSec / 60) + " min(s)";
+    else if(timeInSec < 3600 * 24)
+        result = Math.floor(timeInSec / 3600) + " hour(s)";
+    else 
+        result = Math.floor(timeInSec / 3600 / 24) + " day(s)";
+    return result;
+}

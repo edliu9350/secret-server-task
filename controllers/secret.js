@@ -20,7 +20,10 @@ const getSecretByHash = (req, res) => {
 			return res.status(400).send('Secret not found');
 		}
 		if(new Date() >= sec.expiresAt) {
-			return res.status(400).send('Secret expired');
+			return res.status(400).send({
+				message: 'Secret expired',
+				expiredAt: sec.expiresAt
+			});
 		}
 		res.send(sec);
 	})
