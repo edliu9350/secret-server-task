@@ -12,10 +12,16 @@
   "dependencies": {
     "apollo-server-express": "^3.6.5",
     "body-parser": "^1.19.2",
+    "crypto": "^1.0.1",
     "express": "^4.17.3",
     "express-validator": "^6.14.0",
+    "json-to-pretty-yaml": "^1.2.2",
+    "json2yaml": "^1.1.0",
+    "mongodb": "^4.4.1",
     "mongoose": "^6.2.8",
     "nodemon": "^2.0.15",
-    "sha3": "^2.1.4"
+    "sha3": "^2.1.4",
+    "swagger-ui-express": "^4.3.0",
+    "yamljs": "^0.3.0"
   }
 }
