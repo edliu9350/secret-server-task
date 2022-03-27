@@ -1,16 +1,15 @@
-const { body } = require('express-validator/check');
+const { body, param } = require('express-validator');
 
 const validate = (type) => {
 	switch(type) {
-		case 'getSecret':
+		case 'getSecretByHash':
 			return [
-				body('url', 'Url is empty').exists()
+				param('hash', 'Hash is empty').exists()
 			]
-		case 'updateSecret':
+		case 'addSecret':
 			return [
-				body('text', 'Secret text is empty').exists(),
-				body('expiresAfter', 'Invalid number').exists().isInteger(),
-				body('lifeCount', 'Invalid number').exists().isInteger()
+				body('secret', 'Secret text is empty').exists(),
+				body('expireAfter', 'Invalid number').exists()
 			]
 		default:
 			return []

@@ -1,117 +1,92 @@
 const { Keccak } = require('sha3');
-const { Secret } = require('../models/secret');
-const { validationResult } = require('express-validator/check');
+const Secret = require('../models/secret');
+const { validationResult } = require('express-validator');
+const { encrypt, decrypt } = require('../crypto/crypto');
 
-const getSecret = (req, res) => {
-	const errors = validationResult(req);
+
+const getSecretByHash = (req, res) => {
 	/*validation*/
+	const errors = validationResult(req);
 	if(!errors.isEmpty()) {
-		res.status(422).json({ errors });
+		res.status(422).send({ errors });
 		return;
 	}
 	/*get secret by url*/
 	Secret.findOne({
-		url: req.params.url
+		hash: req.params.hash
 	})
 	.then(sec => {
 		if(!sec) {
 			return res.status(400).send('Secret not found');
 		}
-		if(sec.lifeCount <= 0 || new Date() >= sec.expiresAt) {
+		if(new Date() >= sec.expiresAt) {
 			return res.status(400).send('Secret expired');
 		}
-		/*decrease lifeCount*/
-		sec.lifeCount--;
-		sec.save()
-			.then(() => {
-				res.json(sec);
-			})
-			.catch((err) => {
-				res.status(400).json({
-					message: 'Error updating secret',
-					error: err
-				})
-			})
+		res.send(sec);
 	})
 	.catch(err => {
-		return res.status(500).json({
+		return res.status(500).send({
 			message: 'Error fetching data',
 			error: err
 		});
 	});
 };
 
-const createSecret = (req, res) => {
+const addSecret = (req, res) => {
+	/*validation*/
+	const errors = validationResult(req);
+	if(!errors.isEmpty()) {
+		res.status(422).send({ errors });
+		return;
+	}
+	/*add secret*/
 	const keccak = new Keccak(256);
 	const now = new Date();
-	const hash = Keccak.update(req.body.text, 'utf-8').digest('hex');
+	const hash = keccak.update(String(new Date()), 'utf-8').digest('hex');
 	let secret = new Secret({
-		url: hash,
-		text: req.body.text,
+		hash,
+		secretText: req.body.secret,
 		createdAt: now,
-		expiresAt: new Date(now.getTime() + parseInt(req.body.expiresAfter) * 60000),
-		lifeCount: req.body.lifeCount
+		expiresAt: new Date(now.getTime() + parseInt(req.body.expireAfter) * 60000)
 	});
 	secret.save()
-		.then(() => {
-			res.json({
+		.then((sec) => {
+			sec.secretText = decrypt(sec.secretText);
+			res.send({
 				message: 'Secret saved',
+				secret: sec,
 				url: `/api/secret/${hash}`
 			})
 		})
 		.catch(err => {
-			res.json({
+			res.status(500).send({
 				message: 'Error creating new secret',
 				error: err
 			})
 		})
 }
 
-const updateSecret = (req, res) => {
-	const secretBody = req.body;
-	const errors = validationResult(req);
-	/*validation*/
-	if(!errors.isEmpty()) {
-		res.status(422).json({ errors });
-		return;
-	}
-	/*update secret*/
-	Secret.findOne({ url: req.url})
-		.then(sec => {
-			if(!sec) {
-				if(req.body.url == undefined) {
-					/*add new secret*/
-					createSecret(req, res);
-				} else {
-					/*Couldn't find secret*/
-					res.status(400).send("Secret doesn't exist");
+const getSecrets = (req, res) => {
+	const now = new Date();
+	Secret.find({})
+		.then(secs => {
+			secs.forEach(sec => {
+				if(sec.expiresAt <= now) {
+					sec.secretText = '';
 				}
-			} else {
-				/*update old secret*/
-				const now = new Date();
-				secret.text = req.body.text;
-				secret.expiresAt = new Date(now.getTime() + req.body.expiresAfter * 60000);
-				secret.save()
-					.then(() => {
-						res.json('Secret updated');
-					})
-					.catch((err) => {
-						res.json({
-							message: 'Error updating secret',
-							error: err
-						})
-					})
-			}
+			});
+			res.json(secs);
 		})
 		.catch(err => {
-			res.status(500).json({
-				message: 'Server error when updating secret',
-				error: err.toString()
+			res.status(500).send({
+				message: 'Error fetching data',
+				error: err
 			})
-		});
-};
+		})
+}
 
 module.exports = {
-	getSecret,
-	updateSecret
+	getSecretByHash,
+	addSecret,
+	getSecrets
 };

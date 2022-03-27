@@ -4,7 +4,8 @@ const validate = require('../validators/secret');
 
 const router = Router();
 
-router.get('/secret/:url', validate('getSecret'), controller.getSecret);
-router.post('/secret/', validate('updateSecret'), controller.updateSecret);
+router.get('/secret/:hash', validate('getSecretByHash'), controller.getSecretByHash);
+router.post('/secret/', validate('addSecret'), controller.addSecret);
+router.get('/secrets/', controller.getSecrets);
 
 module.exports = router;
